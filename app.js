@@ -103,6 +103,10 @@ function checkParams() {
 
 function scheduleCowinPinger(params) {
     let pingCount = 0;
+    console.clear();
+    pingCount += 1;
+    pingCowin(params);
+    console.log("Ping Count - ", pingCount);
     timer = setInterval(() => {
         console.clear();
         pingCount += 1;
