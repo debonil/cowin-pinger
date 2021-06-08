@@ -6,8 +6,8 @@ const startOfTomorrow = require('date-fns/startOfTomorrow')
 const sound = require("sound-play");
 const path = require("path");
 const fs = require('fs');
-const notificationSound = path.join(__dirname, "sounds/beep.mp3");
-const districts = require('./master').districts;
+const notificationSound = path.join(__dirname, "sounds/beep.wav");
+const districts = require('./master').districtsOfWbMap;
 const defaultInterval = 15; // interval between pings in minutes
 const appointmentsListLimit = 2 // Increase/Decrease it based on the amount of information you want in the notification.
 var timer = null;
@@ -91,14 +91,14 @@ function scheduleCowinPinger(params) {
 function pingCowin({ filehandle, age, districtId, appointmentsListLimit, date }) {
     axios.get(`https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByDistrict?district_id=${districtId}&date=${date}`, { headers: { 'User-Agent': sampleUserAgent } }).then((result) => {
         const { centers } = result.data;
-        let appointmentsAvailableCount = centers.reduce((p, c) => p + c.sessions.reduce((p, c) => p + c.available_capacity, 0), 0);
-        const avlCenters = centers.filter(x => x.sessions.some(c => c.available_capacity));
+        let appointmentsAvailableCount = centers.reduce((p, c) => p + c.sessions.reduce((p, c) => p + c.available_capacity_dose1, 0), 0);
+        const avlCenters = centers.filter(x => x.sessions.some(c => c.available_capacity_dose1));
         if (appointmentsAvailableCount > 0) {
-            console.log(avlCenters.map(x => x.name));
-            console.log('Slots found\n')
+            console.log(avlCenters.length + ' Centers found ====>');
+            avlCenters.forEach(console.log);
             sound.play(notificationSound);
         }
-        fileLog(filehandle, `${new Date().toLocaleString()} Available : ${appointmentsAvailableCount} apnmnts in  ${avlCenters.length} slots`);
+        fileLog(filehandle, `${new Date().toLocaleString()} Available : ${appointmentsAvailableCount} apnmnts in  ${avlCenters.length} centers`);
     }).catch((err) => {
         console.log("Error: " + err.message);
     });
